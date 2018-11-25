@@ -3,7 +3,7 @@
 #include "export.h"
 #include "math.h"
 
-int map[RES_COL][RES_ROW];
+extern int map[RES_COL][RES_ROW];
 void init();
 int calculate_cost(int,int);
 Command next_command();

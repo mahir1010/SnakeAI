@@ -4,9 +4,9 @@
 #include "stdlib.h"
 #include "math.h"
 
-#ifndef GLOBAL_OPTIMUM
+#ifndef PROB_HEURISTIC
 #include "greedy_local_optimum.h"
 #else
-#include "global_optimum.h"
+#include "probabilistic_heuristic.h"
 #endif
 #endif

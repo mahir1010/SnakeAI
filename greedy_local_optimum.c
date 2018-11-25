@@ -1,5 +1,7 @@
 #include "greedy_local_optimum.h"
 #include "limits.h"
+
+int map[RES_COL][RES_ROW];
 void init()
 {
 	double length = sqrt(pow(INIT_SNAKE_X1 - INIT_SNAKE_X2, 2)
@@ -21,7 +23,7 @@ void init()
 }
 
 int calculate_cost(int x,int y){
-  return fmax(INT_MAX*map[x][y],fmin(fabs(f->x1-x),RES_COL-fabs(f->x1-x))+fmin(fabs(f->y1-y),RES_ROW-fabs(f->y1-y)));
+  return fmax(INT_MAX*map[x][y],fmin(fabs((f->x1)-x),((double)RES_COL)-fabs((f->x1)-x))+fmin(fabs((f->y1)-y),((double)RES_ROW)-fabs((f->y1)-y)));
 }
 
 Command next_command(){
@@ -58,7 +60,8 @@ Command next_command(){
 
 void update_map(){
   int x,y;
-  map[head->attr->x1][head->attr->y1]=1;
+  if(head->attr->x1<RES_COL && head->attr->x1 >=0 && head->attr->y1<RES_ROW && head->attr->y1>=0)
+    map[head->attr->x1][head->attr->y1]=1;
   x=last->attr->x2-last->attr->x2_increment;
   y=last->attr->y2-last->attr->y2_increment;
   map[x][y]=0;
