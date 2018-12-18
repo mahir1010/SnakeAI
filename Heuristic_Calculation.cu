@@ -1,15 +1,15 @@
 #include "Heuristic_Calculation.cuh"
 #include "stdio.h"
 #include "math.h"
-
+#include "float.h"
 const int KERNEL_WIDTH=SEARCH_DEPTH*2+1;
 const dim3 TPB(KERNEL_WIDTH,KERNEL_WIDTH,1);
-float map[KERNEL_WIDTH*KERNEL_WIDTH*2];
+float map[KERNEL_WIDTH*KERNEL_WIDTH];
 float *device_map;
 size_t pitch;
 
 void init(){
-  cudaMallocPitch(&device_map,&pitch,KERNEL_WIDTH*sizeof(float),KERNEL_WIDTH*2);
+  cudaMallocPitch(&device_map,&pitch,KERNEL_WIDTH*sizeof(float),KERNEL_WIDTH);
 }
 
 __global__ void d_calculate_distance(float x,float y,int *snake,int length,float *op){
@@ -43,7 +43,6 @@ __global__ void calculate_cost(float *device_map ,size_t pitch, int food_x, int 
   float x1,y1,x2,y2;
   float *cost=(float*)(((char*)device_map)+threadIdx.y*pitch); 
   cost[threadIdx.x]= fminf(fabsf(food_x-X),((float)RES_COL)-fabsf(food_x-X)) + fminf(fabsf(food_y-Y),((float)RES_ROW)-fabsf(food_y-Y));
-  cost=(float*)(((char*)device_map)+(threadIdx.y+KERNEL_WIDTH)*pitch);
   float x=(float)X,y=(float)Y;
   /*if(length>8){
     float *opt;
@@ -63,12 +62,12 @@ __global__ void calculate_cost(float *device_map ,size_t pitch, int food_x, int 
       d3=fmaxf(.0f,fminf(1.0f,d2));
       d2=sqrtf(powf(x-(x1+d3*(x2-x1)),2)+powf(y-(y1+d3*(y2-y1)),2));
       if(d2<1.0f){
-        cost[threadIdx.x]=-1.0f;
+        cost[threadIdx.x]=FLT_MAX;
         return;
       }
       op+=d2;
     }
-    cost[threadIdx.x]=op/(RES_COL*RES_ROW);
+    cost[threadIdx.x]=cost[threadIdx.x]*(1.0f-op/(RES_COL*RES_ROW));
   //}
 }
 
@@ -85,7 +84,7 @@ void update_map(float snake_length){
   cudaMemcpy((void*)snake_d,(void*)snake_h,sizeof(int)*length*4,cudaMemcpyHostToDevice);
   calculate_cost<<<1,TPB>>>(device_map,pitch ,f->x1,f->y1,snake_d,length,snake_length);
   cudaDeviceSynchronize();
-  cudaMemcpy2D((void*)map,KERNEL_WIDTH*sizeof(float),(void*)device_map,pitch,KERNEL_WIDTH*sizeof(float),KERNEL_WIDTH*2,cudaMemcpyDeviceToHost);
+  cudaMemcpy2D((void*)map,KERNEL_WIDTH*sizeof(float),(void*)device_map,pitch,KERNEL_WIDTH*sizeof(float),KERNEL_WIDTH,cudaMemcpyDeviceToHost);
   /*printf("\n\nIN UPDATE MAP Head at %d %d FOOD at %d %d\n",head->attr->x1,head->attr->y1,f->x1,f->y1);
   printf("\n");
   for(int i=0;i<KERNEL_WIDTH;i++){

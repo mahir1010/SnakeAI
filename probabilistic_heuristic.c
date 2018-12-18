@@ -21,14 +21,13 @@ float calculate_prob(int x,int y,Command c){
 
 void next_command(Command_List **command_head){
   float cost[4];
-  cost[0]=get_cost(-1,0) * get_prob(-1,0);
-  cost[1]=get_cost(0,-1) * get_prob(0,-1);
-  cost[2]=get_cost(1,0) * get_prob(1,0);
-  cost[3]=get_cost(0,1) * get_prob(0,1);
+  cost[0]=get_cost(-1,0); //* get_prob(-1,0);
+  cost[1]=get_cost(0,-1); //* get_prob(0,-1);
+  cost[2]=get_cost(1,0); //* get_prob(1,0);
+  cost[3]=get_cost(0,1);//* get_prob(0,1);
     int key=0;
     for(int i=0;i<4;i++){
      // printf("Cost[%d] before = %lf\n",i,cost[i]);
-      if(cost[i]<0) cost[i]=FLT_MAX;
       //printf("Cost[%d] after = %lf\n",i,cost[i]);
       //printf("last command subtraction %lf\n",fabs(i-currentCommand));
       if(cost[i]<cost[key] && fabs(i-currentCommand)!=2.0f){
