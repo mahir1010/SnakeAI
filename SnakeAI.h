@@ -4,8 +4,10 @@
 #include "stdlib.h"
 #include "math.h"
 
-#ifndef PROB_HEURISTIC
+#if !defined(PROB_HEURISTIC) && !defined(SERIAL_A_STAR)
 #include "greedy_local_optimum.h"
+#elif defined(SERIAL_A_STAR)
+#include "serial_a_star.h"
 #else
 #include "probabilistic_heuristic.h"
 #endif
